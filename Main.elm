@@ -17,8 +17,7 @@ main = Html.program { init = init
 type alias Coord = ( Float, Float )
 type alias Tail = List Coord
 type alias Model =
-  { x : Float
-  , y : Float
+  { head : Coord
   , tail : Tail
   , velocityX : Float
   , velocityY : Float
@@ -39,26 +38,27 @@ canvasY height mouseY = ((toFloat height) / 2) - (toFloat mouseY)
 drawSnake : Model -> List Collage.Form
 drawSnake model =
   List.map (drawSnakePart 15 Color.blue) model.tail
-  ++ [ drawSnakePart 16 Color.red (model.x, model.y) ]
+  ++ [ drawSnakePart 16 Color.red model.head ]
 
+drawSnakePart : Float -> Color.Color -> Coord -> Collage.Form
 drawSnakePart size color position =
   Collage.filled color (Collage.circle size)
   |> Collage.move position
 
 
+advanceSnake : Model -> Model
 advanceSnake model =
   { model |
-    x = model.x + model.velocityX,
-    y = model.y + model.velocityY,
-    tail = [ (model.x, model.y) ] ++ model.tail }
+    head = ( Tuple.first model.head + model.velocityX, Tuple.second model.head + model.velocityY )
+  , tail = [ model.head ] ++ model.tail }
 
 trimSnakeTail model =
   { model | tail = List.take model.length model.tail }
 
 setSnakeDirection model mousePosition =
   { model |
-    velocityX = ((canvasX model.width mousePosition.x) - model.x) / 100,
-    velocityY = ((canvasY model.height mousePosition.y) - model.y) / 100}
+    velocityX = ((canvasX model.width mousePosition.x) - Tuple.first model.head) / 100,
+    velocityY = ((canvasY model.height mousePosition.y) - Tuple.second model.head) / 100}
 
 update msg model =
   case msg of
@@ -79,8 +79,7 @@ type Msg =
 
 init : ( Model, Cmd Msg )
 init =
-  ( { x = 50.0
-    , y = 50.0
+  ( { head = ( 50.0, 50.0 )
     , tail = []
     , length = 70
     , velocityX = 0.0
