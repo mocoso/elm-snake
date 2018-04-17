@@ -33,8 +33,10 @@ view model =
     , Html.div [myStyle] [ Collage.collage model.width model.height (drawSnake model) |> Element.toHtml ]
     ]
 
-canvasX width mouseX = negate ((toFloat width) / 2) + (toFloat mouseX)
-canvasY height mouseY = ((toFloat height) / 2) - (toFloat mouseY)
+canvasCoord width height mousePosition =
+  Coord
+    (negate ((toFloat width) / 2) + (toFloat mousePosition.x))
+    (((toFloat height) / 2) - (toFloat mousePosition.y))
 
 drawSnake : Model -> List Collage.Form
 drawSnake model =
@@ -62,9 +64,10 @@ setSnakeDirection model =
     velocityX = (model.mouseCoord.x - model.head.x) / 100,
     velocityY = (model.mouseCoord.y - model.head.y) / 100}
 
+setMouseCoord : Model -> Mouse.Position -> Model
 setMouseCoord model mousePosition =
   { model |
-    mouseCoord = Coord (canvasX model.width mousePosition.x) (canvasY model.height mousePosition.y) }
+    mouseCoord = canvasCoord model.width model.height mousePosition }
 
 
 update msg model =
