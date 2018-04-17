@@ -14,11 +14,15 @@ main = Html.program { init = init
                , subscriptions = subscriptions
                }
 
+type alias Coord = ( Float, Float )
+type alias Tail = List Coord
 type alias Model =
   { x : Float
   , y : Float
+  , tail : Tail
   , velocityX : Float
   , velocityY : Float
+  , length : Int
   , width : Int
   , height : Int }
 
@@ -26,22 +30,30 @@ view : Model -> Html.Html Msg
 view model =
   Html.body []
     [ Html.h1 [] [ Html.text "Snake" ]
-    , Html.div [myStyle] [ Collage.collage model.width model.height [drawSnake model] |> Element.toHtml ]
+    , Html.div [myStyle] [ Collage.collage model.width model.height (drawSnake model) |> Element.toHtml ]
     ]
 
 canvasX width mouseX = negate ((toFloat width) / 2) + (toFloat mouseX)
 canvasY height mouseY = ((toFloat height) / 2) - (toFloat mouseY)
 
-drawSnake : Model -> Collage.Form
+drawSnake : Model -> List Collage.Form
 drawSnake model =
-  Collage.filled Color.red (Collage.circle 20)
-    |> Collage.moveX model.x
-    |> Collage.moveY model.y
+  List.map (drawSnakePart 15 Color.blue) model.tail
+  ++ [ drawSnakePart 16 Color.red (model.x, model.y) ]
+
+drawSnakePart size color position =
+  Collage.filled color (Collage.circle size)
+  |> Collage.move position
+
 
 advanceSnake model =
   { model |
     x = model.x + model.velocityX,
-    y = model.y + model.velocityY }
+    y = model.y + model.velocityY,
+    tail = [ (model.x, model.y) ] ++ model.tail }
+
+trimSnakeTail model =
+  { model | tail = List.take model.length model.tail }
 
 setSnakeDirection model mousePosition =
   { model |
@@ -53,7 +65,7 @@ update msg model =
     SetMouseMove mousePosition ->
       ( setSnakeDirection model mousePosition, Cmd.none )
     Tick time ->
-      ( advanceSnake model, Cmd.none )
+      ( advanceSnake model |> trimSnakeTail, Cmd.none )
 
 subscriptions _ =
   Sub.batch
@@ -69,6 +81,8 @@ init : ( Model, Cmd Msg )
 init =
   ( { x = 50.0
     , y = 50.0
+    , tail = []
+    , length = 70
     , velocityX = 0.0
     , velocityY = 0.0
     , width = 800
