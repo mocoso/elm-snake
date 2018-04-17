@@ -22,6 +22,7 @@ type alias Model =
   , velocityX : Float
   , velocityY : Float
   , length : Int
+  , mouseCoord : Coord
   , width : Int
   , height : Int }
 
@@ -55,17 +56,26 @@ advanceSnake model =
 trimSnakeTail model =
   { model | tail = List.take model.length model.tail }
 
-setSnakeDirection model mousePosition =
+setSnakeDirection : Model -> Model
+setSnakeDirection model =
   { model |
-    velocityX = ((canvasX model.width mousePosition.x) - Tuple.first model.head) / 100,
-    velocityY = ((canvasY model.height mousePosition.y) - Tuple.second model.head) / 100}
+    velocityX = (Tuple.first model.mouseCoord - Tuple.first model.head) / 100,
+    velocityY = (Tuple.second model.mouseCoord - Tuple.second model.head) / 100}
+
+setMouseCoord model mousePosition =
+  { model |
+    mouseCoord = ( ( canvasX model.width mousePosition.x ), ( canvasY model.height mousePosition.y) ) }
+
 
 update msg model =
   case msg of
     SetMouseMove mousePosition ->
-      ( setSnakeDirection model mousePosition, Cmd.none )
+      ( setMouseCoord model mousePosition, Cmd.none )
     Tick time ->
-      ( advanceSnake model |> trimSnakeTail, Cmd.none )
+      ( setSnakeDirection model
+      |> advanceSnake
+      |> trimSnakeTail
+      , Cmd.none )
 
 subscriptions _ =
   Sub.batch
@@ -84,6 +94,7 @@ init =
     , length = 70
     , velocityX = 0.0
     , velocityY = 0.0
+    , mouseCoord = ( 0.0, 0.0 )
     , width = 800
     , height = 600
     }
