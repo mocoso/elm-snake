@@ -19,8 +19,8 @@ type alias Tail = List Coord
 type alias Model =
   { head : Coord
   , tail : Tail
-  , velocityX : Float
-  , velocityY : Float
+  , direction : Float
+  , speed : Float
   , length : Int
   , mouseCoord : Coord
   , width : Int
@@ -51,18 +51,23 @@ drawSnakePart size color coord =
 
 advanceSnake : Model -> Model
 advanceSnake model =
-  { model |
-    head = Coord (model.head.x + model.velocityX) (model.head.y + model.velocityY)
-  , tail = [ model.head ] ++ model.tail }
+  let
+    (x, y) = fromPolar(model.speed, model.direction)
+  in
+    { model |
+      head = Coord (model.head.x + x) (model.head.y + y)
+    , tail = [ model.head ] ++ model.tail }
 
 trimSnakeTail model =
   { model | tail = List.take model.length model.tail }
 
 setSnakeDirection : Model -> Model
 setSnakeDirection model =
-  { model |
-    velocityX = (model.mouseCoord.x - model.head.x) / 100,
-    velocityY = (model.mouseCoord.y - model.head.y) / 100}
+  let
+    (_, newDirection) = toPolar ( (model.mouseCoord.x - model.head.x), (model.mouseCoord.y - model.head.y) )
+  in
+    { model |
+      direction = newDirection }
 
 setMouseCoord : Model -> Mouse.Position -> Model
 setMouseCoord model mousePosition =
@@ -95,8 +100,8 @@ init =
   ( { head = Coord 50.0 50.0
     , tail = []
     , length = 70
-    , velocityX = 0.0
-    , velocityY = 0.0
+    , direction = 0.0
+    , speed = 1.0
     , mouseCoord = Coord 0.0 0.0
     , width = 800
     , height = 600
