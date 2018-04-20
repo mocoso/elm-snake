@@ -7,6 +7,7 @@ import Mouse
 import Window
 import Task
 import Time
+import Radian
 
 main = Html.program { init = init
                , view = view
@@ -64,10 +65,11 @@ trimSnakeTail model =
 setSnakeDirection : Model -> Model
 setSnakeDirection model =
   let
-    (_, newDirection) = toPolar ( (model.mouseCoord.x - model.head.x), (model.mouseCoord.y - model.head.y) )
+    (_, directionToMouse) = toPolar ( (model.mouseCoord.x - model.head.x), (model.mouseCoord.y - model.head.y) )
   in
     { model |
-      direction = newDirection }
+      direction = Radian.turnTowards model.direction directionToMouse 0.03 }
+
 
 setMouseCoord : Model -> Mouse.Position -> Model
 setMouseCoord model mousePosition =
@@ -88,7 +90,7 @@ update msg model =
 subscriptions _ =
   Sub.batch
     [ Mouse.moves SetMouseMove
-    , Time.every (50 * Time.millisecond) Tick
+    , Time.every (30 * Time.millisecond) Tick
     ]
 
 type Msg =
@@ -101,7 +103,7 @@ init =
     , tail = []
     , length = 70
     , direction = 0.0
-    , speed = 1.0
+    , speed = 2.0
     , mouseCoord = Coord 0.0 0.0
     , width = 800
     , height = 600
