@@ -7,7 +7,8 @@ import Mouse
 import Window
 import Task
 import Time
-import Radian
+import Snake exposing (Snake)
+import Coord exposing (Coord)
 
 main = Html.program { init = init
                , view = view
@@ -15,14 +16,8 @@ main = Html.program { init = init
                , subscriptions = subscriptions
                }
 
-type alias Coord = { x : Float, y : Float }
-type alias Tail = List Coord
 type alias Model =
-  { head : Coord
-  , tail : Tail
-  , direction : Float
-  , speed : Float
-  , length : Int
+  { snake : Snake
   , mouseCoord : Coord
   , width : Int
   , height : Int }
@@ -31,45 +26,13 @@ view : Model -> Html.Html Msg
 view model =
   Html.body []
     [ Html.h1 [] [ Html.text "Snake" ]
-    , Html.div [myStyle] [ Collage.collage model.width model.height (drawSnake model) |> Element.toHtml ]
+    , Html.div [myStyle] [ Collage.collage model.width model.height (Snake.draw model.snake) |> Element.toHtml ]
     ]
 
 canvasCoord width height mousePosition =
   Coord
     (negate ((toFloat width) / 2) + (toFloat mousePosition.x))
     (((toFloat height) / 2) - (toFloat mousePosition.y))
-
-drawSnake : Model -> List Collage.Form
-drawSnake model =
-  List.map (drawSnakePart 15 Color.blue) model.tail
-  ++ [ drawSnakePart 16 Color.red model.head ]
-
-drawSnakePart : Float -> Color.Color -> Coord -> Collage.Form
-drawSnakePart size color coord =
-  Collage.filled color (Collage.circle size)
-  |> Collage.move (coord.x, coord.y)
-
-
-advanceSnake : Model -> Model
-advanceSnake model =
-  let
-    (x, y) = fromPolar(model.speed, model.direction)
-  in
-    { model |
-      head = Coord (model.head.x + x) (model.head.y + y)
-    , tail = [ model.head ] ++ model.tail }
-
-trimSnakeTail model =
-  { model | tail = List.take model.length model.tail }
-
-setSnakeDirection : Model -> Model
-setSnakeDirection model =
-  let
-    (_, directionToMouse) = toPolar ( (model.mouseCoord.x - model.head.x), (model.mouseCoord.y - model.head.y) )
-  in
-    { model |
-      direction = Radian.turnTowards model.direction directionToMouse 0.03 }
-
 
 setMouseCoord : Model -> Mouse.Position -> Model
 setMouseCoord model mousePosition =
@@ -82,15 +45,17 @@ update msg model =
     SetMouseMove mousePosition ->
       ( setMouseCoord model mousePosition, Cmd.none )
     Tick time ->
-      ( setSnakeDirection model
-      |> advanceSnake
-      |> trimSnakeTail
+      ( { model |
+          snake =
+            Snake.setDirection model.mouseCoord model.snake
+            |> Snake.advance
+            |> Snake.trimTail }
       , Cmd.none )
 
 subscriptions _ =
   Sub.batch
     [ Mouse.moves SetMouseMove
-    , Time.every (30 * Time.millisecond) Tick
+    , Time.every (50 * Time.millisecond) Tick
     ]
 
 type Msg =
@@ -99,11 +64,11 @@ type Msg =
 
 init : ( Model, Cmd Msg )
 init =
-  ( { head = Coord 50.0 50.0
-    , tail = []
-    , length = 70
-    , direction = 0.0
-    , speed = 2.0
+  ( { snake = { head = Coord 50.0 50.0
+              , tail = []
+              , length = 70
+              , direction = 0.0
+              , speed = 4.0 }
     , mouseCoord = Coord 0.0 0.0
     , width = 800
     , height = 600
