@@ -25,6 +25,12 @@ advance snake =
 trimTail snake =
   { snake | tail = List.take snake.length snake.tail }
 
+grow snake =
+  { snake | length = snake.length + 3 }
+
+canEatFruit snake fruit =
+  Coord.distance snake.head fruit < 20
+
 setDirection : Coord -> Snake -> Snake
 setDirection mouseCoord snake =
   let
@@ -32,6 +38,7 @@ setDirection mouseCoord snake =
   in
     { snake |
       direction = Radian.turnTowards snake.direction directionToMouse 0.06 }
+
 
 draw : Snake -> List Collage.Form
 draw snake =

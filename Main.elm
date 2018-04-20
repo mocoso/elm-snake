@@ -57,12 +57,23 @@ update msg model =
     NewFruitPosition (x, y) ->
       ( { model | fruit = Coord (toFloat x) (toFloat y) }, Cmd.none )
     Tick time ->
-      ( { model |
-          snake =
-            Snake.setDirection model.mouseCoord model.snake
-            |> Snake.advance
-            |> Snake.trimTail }
-      , Cmd.none )
+      (tickSnake model, Cmd.batch [])
+      |> fruitEatingChecks
+
+tickSnake model =
+  { model |
+    snake =
+      Snake.setDirection model.mouseCoord model.snake
+      |> Snake.advance
+      |> Snake.trimTail }
+
+fruitEatingChecks (model, commands) =
+  if Snake.canEatFruit model.snake model.fruit then
+    ( { model |
+        snake = Snake.grow model.snake }
+    , Cmd.batch[commands, newFruitCmd] )
+  else
+    (model, commands)
 
 subscriptions _ =
   Sub.batch
