@@ -4,6 +4,7 @@ import Coord exposing (Coord)
 import Radian
 import Collage
 import Color
+import List.Extra
 
 type alias Tail = List Coord
 type alias Snake =
@@ -43,8 +44,11 @@ setDirection mouseCoord snake =
 
 draw : Snake -> List Collage.Form
 draw snake =
-  List.map (drawSegment 15 Color.blue) snake.tail
-  ++ [ drawSegment 16 Color.red snake.head ]
+  let
+    tailColorCycle = List.Extra.cycle (List.length snake.tail) [Color.blue, Color.lightBlue, Color.blue, Color.darkBlue]
+  in
+    List.map2 (drawSegment 15) tailColorCycle (List.reverse snake.tail)
+    ++ [ drawSegment 16 Color.red snake.head ]
 
 drawSegment : Float -> Color.Color -> Coord -> Collage.Form
 drawSegment size color coord =
