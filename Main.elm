@@ -20,9 +20,7 @@ main = Html.program { init = init
 type alias Model =
   { snake : Snake
   , fruit : Coord
-  , mouseCoord : Coord
-  , width : Int
-  , height : Int }
+  , mouseCoord : Coord }
 
 view : Model -> Html.Html Msg
 view model =
@@ -30,7 +28,7 @@ view model =
     [ Html.h1 [] [ Html.text "Snake" ]
     , Html.div
         [myStyle]
-        [ Collage.collage model.width model.height
+        [ Collage.collage gameSize.width gameSize.height
           ([drawFruit model.fruit] ++ Snake.draw model.snake)
           |> Element.toHtml ]
     ]
@@ -47,7 +45,7 @@ canvasCoord width height mousePosition =
 setMouseCoord : Model -> Mouse.Position -> Model
 setMouseCoord model mousePosition =
   { model |
-    mouseCoord = canvasCoord model.width model.height mousePosition }
+    mouseCoord = canvasCoord gameSize.width gameSize.height mousePosition }
 
 
 update msg model =
@@ -78,7 +76,7 @@ fruitEatingChecks (model, commands) =
 subscriptions _ =
   Sub.batch
     [ Mouse.moves SetMouseMove
-    , Time.every (50 * Time.millisecond) Tick
+    , Time.every ((1000.0 / fps) * Time.millisecond) Tick
     ]
 
 type Msg =
@@ -88,31 +86,41 @@ type Msg =
 
 newFruitCmd : Cmd Msg
 newFruitCmd =
+  let
+    halfWidth = floor (toFloat gameSize.width / 2)
+    halfHeight = floor (toFloat gameSize.height / 2)
+  in
   Cmd.batch
     [ Random.generate NewFruitPosition
-      (Random.pair (Random.int -400 400) (Random.int -300 300)) ]
+      (Random.pair
+        (Random.int (negate halfWidth) halfWidth)
+        (Random.int (negate halfHeight) halfHeight)) ]
 
 init : ( Model, Cmd Msg )
 init =
   ( { snake = { head = Coord 50.0 50.0
               , tail = []
-              , length = 70
+              , length = snakeInitialLength
               , direction = 0.0
-              , speed = 4.0 }
+              , speed = snakeSpeed
+              , turnRate = snakeTurnRate }
     , fruit = Coord 40.0 40.0
     , mouseCoord = Coord 0.0 0.0
-    , width = 800
-    , height = 600
     }
   , newFruitCmd
   )
 
 myStyle =
   Html.Attributes.style
-    [ ("width", "800")
-    , ("height", "600")
+    [ ("width", toString gameSize.width)
+    , ("height", toString gameSize.height)
     , ("position", "fixed")
     , ("top", "0")
     , ("left", "0")
     ]
 
+gameSize = { width = 800, height = 600 }
+fps = 20
+snakeSpeed = 100 / fps
+snakeTurnRate = ((2 * pi) / 300) * snakeSpeed
+snakeInitialLength = round (250 / snakeSpeed)

@@ -11,6 +11,7 @@ type alias Snake =
   , tail : Tail
   , direction : Float
   , speed : Float
+  , turnRate : Float
   , length : Int }
 
 advance : Snake -> Snake
@@ -37,7 +38,7 @@ setDirection mouseCoord snake =
     (_, directionToMouse) = toPolar ( (mouseCoord.x - snake.head.x), (mouseCoord.y - snake.head.y) )
   in
     { snake |
-      direction = Radian.turnTowards snake.direction directionToMouse 0.06 }
+      direction = Radian.turnTowards snake.direction directionToMouse snake.turnRate }
 
 
 draw : Snake -> List Collage.Form
