@@ -34,7 +34,14 @@ canEatFruit snake fruit =
   Position.distance snake.head fruit < 20
 
 isHeadCollidingWithTail snake =
-  List.any (\tailSegment -> Position.distance snake.head tailSegment < 20) (List.drop 10 snake.tail)
+  let
+    collisionDistance = 20
+  in
+    List.drop 25 snake.tail
+    |> List.any
+      (\tailSegment ->
+          Position.minDistance snake.head tailSegment < collisionDistance &&
+          Position.distance snake.head tailSegment < collisionDistance )
 
 setDirection : Position -> Snake -> Snake
 setDirection mousePosition snake =
