@@ -148,7 +148,7 @@ myStyle =
     ]
 
 gameSize = { width = 800, height = 600 }
-fps = 20
+fps = 40
 snakeSpeed = 150 / fps
 snakeTurnRate = ((2 * pi) / 300) * snakeSpeed
 snakeInitialLength = round (300 / snakeSpeed)
