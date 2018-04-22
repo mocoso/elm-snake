@@ -21,12 +21,14 @@ main = Html.program { init = init
 type alias Model =
   { snake : Snake
   , fruit : Coord
-  , mouseCoord : Coord }
+  , mouseCoord : Coord
+  , score : Int }
 
 view : Model -> Html.Html Msg
 view model =
   Html.body []
     [ Html.h1 [] [ Html.text "Snake" ]
+    , Html.p [] [ Html.text ("Score: " ++ toString model.score) ]
     , Html.div
       [ onMouseMove,
         myStyle ]
@@ -77,7 +79,8 @@ tickSnake model =
 fruitEatingChecks (model, commands) =
   if Snake.canEatFruit model.snake model.fruit then
     ( { model |
-        snake = Snake.grow model.snake }
+        snake = Snake.grow model.snake
+      , score = model.score + 10 }
     , Cmd.batch[commands, newFruitCmd] )
   else
     (model, commands)
@@ -114,6 +117,7 @@ init =
               , turnRate = snakeTurnRate }
     , fruit = Coord 40.0 40.0
     , mouseCoord = Coord 0.0 0.0
+    , score = 0
     }
   , newFruitCmd
   )
