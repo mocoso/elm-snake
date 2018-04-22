@@ -49,7 +49,7 @@ onMouseMove =
       (Decode.field "offsetY" Decode.float))
 
 drawFruit position =
-  Collage.filled Color.green (Collage.circle 10)
+  Collage.filled Color.red (Collage.circle 10)
   |> Collage.move (position.x, position.y)
 
 canvasPosition width height mousePosition =

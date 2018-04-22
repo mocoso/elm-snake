@@ -48,7 +48,7 @@ setDirection mousePosition snake =
 draw : Snake -> Collage.Form
 draw snake =
   let
-    tailColorCycle = List.Extra.cycle (List.length snake.tail) [Color.blue, Color.lightBlue, Color.blue, Color.darkBlue]
+    tailColorCycle = List.Extra.cycle (List.length snake.tail) [Color.green, Color.lightGreen, Color.green, Color.darkGreen, Color.darkGreen]
   in
     List.map2 (drawTailSegment 15) tailColorCycle (List.reverse snake.tail)
     ++ [drawHead snake]
@@ -56,7 +56,7 @@ draw snake =
 
 drawHead : Snake -> Collage.Form
 drawHead snake =
-  Collage.group [ drawFilledCircle Color.red headRadius, drawEyes snake ]
+  Collage.group [ drawFilledCircle Color.lightBlue headRadius, drawEyes snake ]
   |> Collage.rotate snake.direction
   |> Collage.move (Position.toTuple snake.head)
 
