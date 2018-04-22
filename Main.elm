@@ -9,7 +9,7 @@ import Json.Decode as Decode
 import Task
 import Time
 import Snake exposing (Snake)
-import Coord exposing (Coord)
+import Position exposing (Position)
 import Random
 
 main = Html.program { init = init
@@ -20,8 +20,8 @@ main = Html.program { init = init
 
 type alias Model =
   { snake : Snake
-  , fruit : Coord
-  , mouseCoord : Coord
+  , fruit : Position
+  , mousePosition : Position
   , score : Int }
 
 view : Model -> Html.Html Msg
@@ -44,27 +44,27 @@ onMouseMove =
       (Decode.field "offsetX" Decode.float)
       (Decode.field "offsetY" Decode.float))
 
-drawFruit fruitCoord =
+drawFruit position =
   Collage.filled Color.green (Collage.circle 10)
-  |> Collage.move (fruitCoord.x, fruitCoord.y)
+  |> Collage.move (position.x, position.y)
 
-canvasCoord width height mousePosition =
-  Coord
+canvasPosition width height mousePosition =
+  Position
     (negate ((toFloat width) / 2) + (mousePosition.x))
     (((toFloat height) / 2) - (mousePosition.y))
 
-setMouseCoord : Model -> Coord -> Model
-setMouseCoord model mousePosition =
+setMousePosition : Model -> Position -> Model
+setMousePosition model mousePosition =
   { model |
-    mouseCoord = canvasCoord gameSize.width gameSize.height mousePosition }
+    mousePosition = canvasPosition gameSize.width gameSize.height mousePosition }
 
 
 update msg model =
   case msg of
     MouseMove (x, y) ->
-      ( setMouseCoord model (Coord x y), Cmd.none )
+      ( setMousePosition model (Position x y), Cmd.none )
     NewFruitPosition (x, y) ->
-      ( { model | fruit = Coord (toFloat x) (toFloat y) }, Cmd.none )
+      ( { model | fruit = Position (toFloat x) (toFloat y) }, Cmd.none )
     Tick time ->
       (tickSnake model, Cmd.batch [])
       |> fruitEatingChecks
@@ -72,7 +72,7 @@ update msg model =
 tickSnake model =
   { model |
     snake =
-      Snake.setDirection model.mouseCoord model.snake
+      Snake.setDirection model.mousePosition model.snake
       |> Snake.advance
       |> Snake.trimTail }
 
@@ -109,14 +109,14 @@ newFruitCmd =
 
 init : ( Model, Cmd Msg )
 init =
-  ( { snake = { head = Coord 50.0 50.0
+  ( { snake = { head = Position 50.0 50.0
               , tail = []
               , length = snakeInitialLength
               , direction = 0.0
               , speed = snakeSpeed
               , turnRate = snakeTurnRate }
-    , fruit = Coord 40.0 40.0
-    , mouseCoord = Coord 0.0 0.0
+    , fruit = Position 40.0 40.0
+    , mousePosition = Position 0.0 0.0
     , score = 0
     }
   , newFruitCmd
