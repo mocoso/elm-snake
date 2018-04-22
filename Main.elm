@@ -18,8 +18,12 @@ main = Html.program { init = init
                , subscriptions = subscriptions
                }
 
+
+type State = Playing | Ended
+
 type alias Model =
-  { snake : Snake
+  { state : State
+  , snake : Snake
   , fruit : Position
   , mousePosition : Position
   , score : Int }
@@ -68,6 +72,8 @@ update msg model =
     Tick time ->
       (tickSnake model, Cmd.batch [])
       |> fruitEatingChecks
+      |> collisionChecks
+
 
 tickSnake model =
   { model |
@@ -85,10 +91,21 @@ fruitEatingChecks (model, commands) =
   else
     (model, commands)
 
-subscriptions _ =
-  Sub.batch
-    [ Time.every ((1000.0 / fps) * Time.millisecond) Tick
-    ]
+collisionChecks (model, commands) =
+  if Snake.isHeadCollidingWithTail model.snake then
+    ( { model |
+        state = Ended }
+    , commands )
+  else
+    (model, commands)
+
+subscriptions model =
+  case model.state of
+    Playing ->
+      Sub.batch
+        [ Time.every ((1000.0 / fps) * Time.millisecond) Tick ]
+    Ended ->
+      Sub.batch []
 
 type Msg =
   MouseMove (Float, Float) |
@@ -109,7 +126,8 @@ newFruitCmd =
 
 init : ( Model, Cmd Msg )
 init =
-  ( { snake = { head = Position 50.0 50.0
+  ( { state = Playing
+    , snake = { head = Position 50.0 50.0
               , tail = []
               , length = snakeInitialLength
               , direction = 0.0
@@ -133,4 +151,4 @@ gameSize = { width = 800, height = 600 }
 fps = 20
 snakeSpeed = 100 / fps
 snakeTurnRate = ((2 * pi) / 300) * snakeSpeed
-snakeInitialLength = round (250 / snakeSpeed)
+snakeInitialLength = round (300 / snakeSpeed)

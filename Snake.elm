@@ -28,10 +28,13 @@ trimTail snake =
   { snake | tail = List.take snake.length snake.tail }
 
 grow snake =
-  { snake | length = snake.length + 3 }
+  { snake | length = snake.length + 5 }
 
 canEatFruit snake fruit =
   Position.distance snake.head fruit < 20
+
+isHeadCollidingWithTail snake =
+  List.any (\tailSegment -> Position.distance snake.head tailSegment < 20) (List.drop 10 snake.tail)
 
 setDirection : Position -> Snake -> Snake
 setDirection mousePosition snake =
