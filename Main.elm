@@ -3,8 +3,9 @@ import Collage
 import Element
 import Html
 import Html.Attributes
-import Mouse
+import Html.Events
 import Window
+import Json.Decode as Decode
 import Task
 import Time
 import Snake exposing (Snake)
@@ -27,11 +28,19 @@ view model =
   Html.body []
     [ Html.h1 [] [ Html.text "Snake" ]
     , Html.div
-        [myStyle]
-        [ Collage.collage gameSize.width gameSize.height
-          ([drawFruit model.fruit] ++ Snake.draw model.snake)
-          |> Element.toHtml ]
-    ]
+      [ onMouseMove,
+        myStyle ]
+      [ Collage.collage gameSize.width gameSize.height
+        ([drawFruit model.fruit] ++ Snake.draw model.snake)
+        |> Element.toHtml ]
+    , Html.p [] [
+        Html.a [ Html.Attributes.attribute "href" "https://github.com/mocoso/elm-snake" ] [ Html.text "Source code"] ] ]
+
+onMouseMove : Html.Attribute Msg
+onMouseMove =
+  Html.Events.on "mousemove" (Decode.map2 (\x -> \y -> MouseMove (x, y))
+      (Decode.field "offsetX" Decode.float)
+      (Decode.field "offsetY" Decode.float))
 
 drawFruit fruitCoord =
   Collage.filled Color.green (Collage.circle 10)
@@ -39,10 +48,10 @@ drawFruit fruitCoord =
 
 canvasCoord width height mousePosition =
   Coord
-    (negate ((toFloat width) / 2) + (toFloat mousePosition.x))
-    (((toFloat height) / 2) - (toFloat mousePosition.y))
+    (negate ((toFloat width) / 2) + (mousePosition.x))
+    (((toFloat height) / 2) - (mousePosition.y))
 
-setMouseCoord : Model -> Mouse.Position -> Model
+setMouseCoord : Model -> Coord -> Model
 setMouseCoord model mousePosition =
   { model |
     mouseCoord = canvasCoord gameSize.width gameSize.height mousePosition }
@@ -50,8 +59,8 @@ setMouseCoord model mousePosition =
 
 update msg model =
   case msg of
-    SetMouseMove mousePosition ->
-      ( setMouseCoord model mousePosition, Cmd.none )
+    MouseMove (x, y) ->
+      ( setMouseCoord model (Coord x y), Cmd.none )
     NewFruitPosition (x, y) ->
       ( { model | fruit = Coord (toFloat x) (toFloat y) }, Cmd.none )
     Tick time ->
@@ -75,12 +84,11 @@ fruitEatingChecks (model, commands) =
 
 subscriptions _ =
   Sub.batch
-    [ Mouse.moves SetMouseMove
-    , Time.every ((1000.0 / fps) * Time.millisecond) Tick
+    [ Time.every ((1000.0 / fps) * Time.millisecond) Tick
     ]
 
 type Msg =
-  SetMouseMove Mouse.Position |
+  MouseMove (Float, Float) |
   Tick Time.Time |
   NewFruitPosition (Int, Int)
 
@@ -112,11 +120,9 @@ init =
 
 myStyle =
   Html.Attributes.style
-    [ ("width", toString gameSize.width)
-    , ("height", toString gameSize.height)
-    , ("position", "fixed")
-    , ("top", "0")
-    , ("left", "0")
+    [ ("width", (toString gameSize.width) ++ "px")
+    , ("height", (toString gameSize.height) ++ "px")
+    , ("background-color", "black")
     ]
 
 gameSize = { width = 800, height = 600 }
