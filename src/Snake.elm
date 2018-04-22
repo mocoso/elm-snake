@@ -45,16 +45,37 @@ setDirection mousePosition snake =
       direction = Radian.turnTowards snake.direction directionToMouse snake.turnRate }
 
 
-draw : Snake -> List Collage.Form
+draw : Snake -> Collage.Form
 draw snake =
   let
     tailColorCycle = List.Extra.cycle (List.length snake.tail) [Color.blue, Color.lightBlue, Color.blue, Color.darkBlue]
   in
-    List.map2 (drawSegment 15) tailColorCycle (List.reverse snake.tail)
-    ++ [ drawSegment 16 Color.red snake.head ]
+    List.map2 (drawTailSegment 15) tailColorCycle (List.reverse snake.tail)
+    ++ [drawHead snake]
+    |> Collage.group
 
-drawSegment : Float -> Color.Color -> Position -> Collage.Form
-drawSegment size color coord =
-  Collage.filled color (Collage.circle size)
+drawHead : Snake -> Collage.Form
+drawHead snake =
+  Collage.group [ drawFilledCircle Color.red headRadius, drawEyes snake ]
+  |> Collage.rotate snake.direction
+  |> Collage.move (Position.toTuple snake.head)
+
+drawEyes : Snake -> Collage.Form
+drawEyes snake =
+  List.map
+    (\coords -> drawFilledCircle Color.white 3.0 |> Collage.move coords)
+    ( List.map
+      (\angle -> fromPolar (headRadius, angle))
+      [0.75, -0.75] )
+  |> Collage.group
+
+drawTailSegment : Float -> Color.Color -> Position -> Collage.Form
+drawTailSegment size color coord =
+  drawFilledCircle color size
   |> Collage.move (coord.x, coord.y)
 
+drawFilledCircle : Color.Color -> Float -> Collage.Form
+drawFilledCircle color size =
+  Collage.filled color (Collage.circle size)
+
+headRadius = 16

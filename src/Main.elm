@@ -37,7 +37,7 @@ view model =
       [ onMouseMove,
         myStyle ]
       [ Collage.collage gameSize.width gameSize.height
-        ([drawFruit model.fruit] ++ Snake.draw model.snake)
+        ([drawFruit model.fruit, Snake.draw model.snake])
         |> Element.toHtml ]
     , Html.p [] [
         Html.a [ Html.Attributes.attribute "href" "https://github.com/mocoso/elm-snake" ] [ Html.text "Source code"] ] ]
