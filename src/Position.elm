@@ -8,6 +8,9 @@ distance a b =
 minDistance a b =
   abs (a.x - b.x) + abs (a.y - b.y)
 
+areWithin a b range =
+  minDistance a b < range && distance a b < range
+
 fromTuple (x, y) =
   Position x y
 

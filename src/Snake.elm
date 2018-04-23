@@ -31,17 +31,12 @@ grow snake =
   { snake | length = snake.length + 5 }
 
 canEatFruit snake fruit =
-  Position.distance snake.head fruit < 20
+  Position.areWithin snake.head fruit 20
 
 isHeadCollidingWithTail snake =
-  let
-    collisionDistance = 20
-  in
-    List.drop 25 snake.tail
-    |> List.any
-      (\tailSegment ->
-          Position.minDistance snake.head tailSegment < collisionDistance &&
-          Position.distance snake.head tailSegment < collisionDistance )
+  List.drop 25 snake.tail
+  |> List.any
+    (\tailSegment -> Position.areWithin snake.head tailSegment 20)
 
 setDirection : Position -> Snake -> Snake
 setDirection mousePosition snake =
