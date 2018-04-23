@@ -13632,15 +13632,34 @@ var _evancz$elm_graphics$Collage$ngon = F2(
 				f,
 				A2(_elm_lang$core$List$range, 0, n - 1)));
 	});
+var _user$project$Position$toTuple = function (position) {
+	return {ctor: '_Tuple2', _0: position.x, _1: position.y};
+};
+var _user$project$Position$minDistance = F2(
+	function (a, b) {
+		return _elm_lang$core$Basics$abs(a.x - b.x) + _elm_lang$core$Basics$abs(a.y - b.y);
+	});
 var _user$project$Position$distance = F2(
 	function (a, b) {
 		return _elm_lang$core$Basics$sqrt(
 			Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 	});
+var _user$project$Position$areWithin = F3(
+	function (a, b, range) {
+		return (_elm_lang$core$Native_Utils.cmp(
+			A2(_user$project$Position$minDistance, a, b),
+			range) < 0) && (_elm_lang$core$Native_Utils.cmp(
+			A2(_user$project$Position$distance, a, b),
+			range) < 0);
+	});
 var _user$project$Position$Position = F2(
 	function (a, b) {
 		return {x: a, y: b};
 	});
+var _user$project$Position$fromTuple = function (_p0) {
+	var _p1 = _p0;
+	return A2(_user$project$Position$Position, _p1._0, _p1._1);
+};
 var _user$project$Radian$normalise = function (angle) {
 	return (_elm_lang$core$Native_Utils.cmp(angle, _elm_lang$core$Basics$pi) > 0) ? (angle - (2 * _elm_lang$core$Basics$pi)) : ((_elm_lang$core$Native_Utils.cmp(
 		angle,
@@ -13661,49 +13680,103 @@ var _user$project$Radian$turnTowards = F3(
 			return _user$project$Radian$normalise(startDirection - rate);
 		}
 	});
-var _user$project$Snake$drawSegment = F3(
+var _user$project$Snake$headRadius = 16;
+var _user$project$Snake$drawFilledCircle = F2(
+	function (color, size) {
+		return A2(
+			_evancz$elm_graphics$Collage$filled,
+			color,
+			_evancz$elm_graphics$Collage$circle(size));
+	});
+var _user$project$Snake$drawTailSegment = F3(
 	function (size, color, coord) {
 		return A2(
 			_evancz$elm_graphics$Collage$move,
 			{ctor: '_Tuple2', _0: coord.x, _1: coord.y},
-			A2(
-				_evancz$elm_graphics$Collage$filled,
-				color,
-				_evancz$elm_graphics$Collage$circle(size)));
+			A2(_user$project$Snake$drawFilledCircle, color, size));
 	});
+var _user$project$Snake$drawEyes = function (snake) {
+	return _evancz$elm_graphics$Collage$group(
+		A2(
+			_elm_lang$core$List$map,
+			function (coords) {
+				return A2(
+					_evancz$elm_graphics$Collage$move,
+					coords,
+					A2(_user$project$Snake$drawFilledCircle, _elm_lang$core$Color$white, 3.0));
+			},
+			A2(
+				_elm_lang$core$List$map,
+				function (angle) {
+					return _elm_lang$core$Basics$fromPolar(
+						{ctor: '_Tuple2', _0: _user$project$Snake$headRadius, _1: angle});
+				},
+				{
+					ctor: '::',
+					_0: 0.75,
+					_1: {
+						ctor: '::',
+						_0: -0.75,
+						_1: {ctor: '[]'}
+					}
+				})));
+};
+var _user$project$Snake$drawHead = function (snake) {
+	return A2(
+		_evancz$elm_graphics$Collage$move,
+		_user$project$Position$toTuple(snake.head),
+		A2(
+			_evancz$elm_graphics$Collage$rotate,
+			snake.direction,
+			_evancz$elm_graphics$Collage$group(
+				{
+					ctor: '::',
+					_0: A2(_user$project$Snake$drawFilledCircle, _elm_lang$core$Color$lightBlue, _user$project$Snake$headRadius),
+					_1: {
+						ctor: '::',
+						_0: _user$project$Snake$drawEyes(snake),
+						_1: {ctor: '[]'}
+					}
+				})));
+};
 var _user$project$Snake$draw = function (snake) {
 	var tailColorCycle = A2(
 		_elm_community$list_extra$List_Extra$cycle,
 		_elm_lang$core$List$length(snake.tail),
 		{
 			ctor: '::',
-			_0: _elm_lang$core$Color$blue,
+			_0: _elm_lang$core$Color$green,
 			_1: {
 				ctor: '::',
-				_0: _elm_lang$core$Color$lightBlue,
+				_0: _elm_lang$core$Color$lightGreen,
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$core$Color$blue,
+					_0: _elm_lang$core$Color$green,
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$core$Color$darkBlue,
-						_1: {ctor: '[]'}
+						_0: _elm_lang$core$Color$darkGreen,
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$core$Color$darkGreen,
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
 		});
-	return A2(
-		_elm_lang$core$Basics_ops['++'],
-		A3(
-			_elm_lang$core$List$map2,
-			_user$project$Snake$drawSegment(15),
-			tailColorCycle,
-			_elm_lang$core$List$reverse(snake.tail)),
-		{
-			ctor: '::',
-			_0: A3(_user$project$Snake$drawSegment, 16, _elm_lang$core$Color$red, snake.head),
-			_1: {ctor: '[]'}
-		});
+	return _evancz$elm_graphics$Collage$group(
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			A3(
+				_elm_lang$core$List$map2,
+				_user$project$Snake$drawTailSegment(15),
+				tailColorCycle,
+				_elm_lang$core$List$reverse(snake.tail)),
+			{
+				ctor: '::',
+				_0: _user$project$Snake$drawHead(snake),
+				_1: {ctor: '[]'}
+			}));
 };
 var _user$project$Snake$setDirection = F2(
 	function (mousePosition, snake) {
@@ -13720,17 +13793,13 @@ var _user$project$Snake$isHeadCollidingWithTail = function (snake) {
 	return A2(
 		_elm_lang$core$List$any,
 		function (tailSegment) {
-			return _elm_lang$core$Native_Utils.cmp(
-				A2(_user$project$Position$distance, snake.head, tailSegment),
-				20) < 0;
+			return A3(_user$project$Position$areWithin, snake.head, tailSegment, 20);
 		},
-		A2(_elm_lang$core$List$drop, 10, snake.tail));
+		A2(_elm_lang$core$List$drop, 25, snake.tail));
 };
 var _user$project$Snake$canEatFruit = F2(
 	function (snake, fruit) {
-		return _elm_lang$core$Native_Utils.cmp(
-			A2(_user$project$Position$distance, snake.head, fruit),
-			20) < 0;
+		return A3(_user$project$Position$areWithin, snake.head, fruit, 20);
 	});
 var _user$project$Snake$grow = function (snake) {
 	return _elm_lang$core$Native_Utils.update(
@@ -13767,8 +13836,8 @@ var _user$project$Snake$Snake = F6(
 	function (a, b, c, d, e, f) {
 		return {head: a, tail: b, direction: c, speed: d, turnRate: e, length: f};
 	});
-var _user$project$Main$fps = 20;
-var _user$project$Main$snakeSpeed = 100 / _user$project$Main$fps;
+var _user$project$Main$fps = 40;
+var _user$project$Main$snakeSpeed = 150 / _user$project$Main$fps;
 var _user$project$Main$snakeTurnRate = ((2 * _elm_lang$core$Basics$pi) / 300) * _user$project$Main$snakeSpeed;
 var _user$project$Main$snakeInitialLength = _elm_lang$core$Basics$round(300 / _user$project$Main$snakeSpeed);
 var _user$project$Main$gameSize = {width: 800, height: 600};
@@ -13831,7 +13900,7 @@ var _user$project$Main$drawFruit = function (position) {
 		{ctor: '_Tuple2', _0: position.x, _1: position.y},
 		A2(
 			_evancz$elm_graphics$Collage$filled,
-			_elm_lang$core$Color$green,
+			_elm_lang$core$Color$red,
 			_evancz$elm_graphics$Collage$circle(10)));
 };
 var _user$project$Main$Model = F5(
@@ -14038,14 +14107,15 @@ var _user$project$Main$view = function (model) {
 									_evancz$elm_graphics$Collage$collage,
 									_user$project$Main$gameSize.width,
 									_user$project$Main$gameSize.height,
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										{
+									{
+										ctor: '::',
+										_0: _user$project$Main$drawFruit(model.fruit),
+										_1: {
 											ctor: '::',
-											_0: _user$project$Main$drawFruit(model.fruit),
+											_0: _user$project$Snake$draw(model.snake),
 											_1: {ctor: '[]'}
-										},
-										_user$project$Snake$draw(model.snake)))),
+										}
+									})),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
