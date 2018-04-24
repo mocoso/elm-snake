@@ -31,16 +31,18 @@ type alias Model =
 view : Model -> Html.Html Msg
 view model =
   Html.body []
-    [ Html.h1 [] [ Html.text "Snake" ]
-    , Html.p [] [ Html.text ("Score: " ++ toString model.score) ]
+    [ Html.div
+      [ titleStyle ]
+      [ Html.h1 [] [ Html.text "Snake" ]
+      , Html.p [] [ Html.text ("Score: " ++ toString model.score) ]
+      , Html.p [] [
+          Html.a [ Html.Attributes.attribute "href" "https://github.com/mocoso/elm-snake" ] [ Html.text "Source code"] ] ]
     , Html.div
       [ onMouseMove,
-        myStyle ]
+        gameStyle ]
       [ Collage.collage gameSize.width gameSize.height
         ([drawFruit model.fruit, Snake.draw model.snake])
-        |> Element.toHtml ]
-    , Html.p [] [
-        Html.a [ Html.Attributes.attribute "href" "https://github.com/mocoso/elm-snake" ] [ Html.text "Source code"] ] ]
+        |> Element.toHtml ] ]
 
 onMouseMove : Html.Attribute Msg
 onMouseMove =
@@ -140,14 +142,23 @@ init =
   , newFruitCmd
   )
 
-myStyle =
+titleStyle =
+  Html.Attributes.style
+  [ ("width", "200px")
+  , ("float", "left")
+  ]
+
+gameStyle =
   Html.Attributes.style
     [ ("width", (toString gameSize.width) ++ "px")
     , ("height", (toString gameSize.height) ++ "px")
     , ("background-color", "black")
+    , ("float", "left")
+    , ("margin-top", "20px")
     ]
 
-gameSize = { width = 800, height = 600 }
+
+gameSize = { width = 600, height = 600 }
 fps = 40
 snakeSpeed = 150 / fps
 snakeTurnRate = ((2 * pi) / 300) * snakeSpeed
