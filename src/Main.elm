@@ -19,7 +19,7 @@ main = Html.program { init = init
                }
 
 
-type State = Playing | Ended
+type State = Playing | GameOver
 
 type alias Model =
   { state : State
@@ -97,7 +97,7 @@ collisionChecks (model, commands) =
   if Snake.isHeadCollidingWithTail model.snake ||
     Snake.isCollidingWithWall model.snake gameSize then
     ( { model |
-        state = Ended }
+        state = GameOver }
     , commands )
   else
     (model, commands)
@@ -107,7 +107,7 @@ subscriptions model =
     Playing ->
       Sub.batch
         [ Time.every ((1000.0 / fps) * Time.millisecond) Tick ]
-    Ended ->
+    GameOver ->
       Sub.batch []
 
 type Msg =
