@@ -15,6 +15,8 @@ type alias Snake =
   , turnRate : Float
   , length : Int }
 
+headRadius = 16
+
 advance : Snake -> Snake
 advance snake =
   let
@@ -37,6 +39,10 @@ isHeadCollidingWithTail snake =
   List.drop 25 snake.tail
   |> List.any
     (\tailSegment -> Position.areWithin snake.head tailSegment 20)
+
+isCollidingWithWall snake gameSize =
+  abs snake.head.x + headRadius > toFloat gameSize.width / 2 ||
+    abs snake.head.y + headRadius > toFloat gameSize.height / 2
 
 setDirection : Position -> Snake -> Snake
 setDirection mousePosition snake =
@@ -80,4 +86,3 @@ drawFilledCircle : Color.Color -> Float -> Collage.Form
 drawFilledCircle color size =
   Collage.filled color (Collage.circle size)
 
-headRadius = 16

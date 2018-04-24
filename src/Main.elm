@@ -51,7 +51,7 @@ onMouseMove =
       (Decode.field "offsetY" Decode.float))
 
 drawFruit position =
-  Collage.filled Color.red (Collage.circle 10)
+  Collage.filled Color.red (Collage.circle fruitRadius)
   |> Collage.move (position.x, position.y)
 
 canvasPosition width height mousePosition =
@@ -94,7 +94,8 @@ fruitEatingChecks (model, commands) =
     (model, commands)
 
 collisionChecks (model, commands) =
-  if Snake.isHeadCollidingWithTail model.snake then
+  if Snake.isHeadCollidingWithTail model.snake ||
+    Snake.isCollidingWithWall model.snake gameSize then
     ( { model |
         state = Ended }
     , commands )
@@ -117,8 +118,8 @@ type Msg =
 newFruitCmd : Cmd Msg
 newFruitCmd =
   let
-    halfWidth = floor (toFloat gameSize.width / 2)
-    halfHeight = floor (toFloat gameSize.height / 2)
+    halfWidth = floor (toFloat gameSize.width / 2) - (4 * fruitRadius)
+    halfHeight = floor (toFloat gameSize.height / 2) - (4 * fruitRadius)
   in
   Cmd.batch
     [ Random.generate NewFruitPosition
@@ -163,3 +164,4 @@ fps = 40
 snakeSpeed = 150 / fps
 snakeTurnRate = ((2 * pi) / 300) * snakeSpeed
 snakeInitialLength = round (300 / snakeSpeed)
+fruitRadius = 10
