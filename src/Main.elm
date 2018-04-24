@@ -28,6 +28,8 @@ type alias Model =
   , mousePosition : Position
   , score : Int }
 
+emptyNode = Html.text ""
+
 view : Model -> Html.Html Msg
 view model =
   Html.body []
@@ -35,10 +37,13 @@ view model =
       [ titleStyle ]
       [ Html.h1 [] [ Html.text "Snake" ]
       , Html.p [] [ Html.text ("Score: " ++ toString model.score) ]
+      , (if model.state == GameOver then Html.p [] [ Html.text "Game over" ] else emptyNode )
+      , (if model.state == GameOver then Html.p [] [ Html.text "Click Mouse to Start" ] else emptyNode )
       , Html.p [] [
           Html.a [ Html.Attributes.attribute "href" "https://github.com/mocoso/elm-snake" ] [ Html.text "Source code"] ] ]
     , Html.div
       [ onMouseMove,
+        Html.Events.onClick MouseClick,
         gameStyle ]
       [ Collage.collage gameSize.width gameSize.height
         ([drawFruit model.fruit, Snake.draw model.snake])
@@ -75,6 +80,8 @@ update msg model =
       (tickSnake model, Cmd.batch [])
       |> fruitEatingChecks
       |> collisionChecks
+    MouseClick ->
+      init
 
 
 tickSnake model =
@@ -108,12 +115,13 @@ subscriptions model =
       Sub.batch
         [ Time.every ((1000.0 / fps) * Time.millisecond) Tick ]
     GameOver ->
-      Sub.batch []
+      Sub.none
 
 type Msg =
   MouseMove (Float, Float) |
   Tick Time.Time |
-  NewFruitPosition (Int, Int)
+  NewFruitPosition (Int, Int) |
+  MouseClick
 
 newFruitCmd : Cmd Msg
 newFruitCmd =
