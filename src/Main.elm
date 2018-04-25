@@ -40,7 +40,8 @@ view model =
       , (if model.state == GameOver then Html.p [] [ Html.text "Game over" ] else emptyNode )
       , (if model.state == GameOver then Html.p [] [ Html.text "Click Mouse to Start" ] else emptyNode )
       , Html.p [] [
-          Html.a [ Html.Attributes.attribute "href" "https://github.com/mocoso/elm-snake" ] [ Html.text "Source code"] ] ]
+          Html.text "An experiment in Elm - "
+        , Html.a [ Html.Attributes.attribute "href" "https://github.com/mocoso/elm-snake" ] [ Html.text "view the source code"] ] ]
     , Html.div
       [ onMouseMove,
         Html.Events.onClick MouseClick,
