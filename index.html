@@ -13880,7 +13880,11 @@ var _user$project$Main$gameStyle = _elm_lang$html$Html_Attributes$style(
 					_1: {
 						ctor: '::',
 						_0: {ctor: '_Tuple2', _0: 'margin-top', _1: '20px'},
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'margin-left', _1: '20px'},
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
@@ -13893,7 +13897,11 @@ var _user$project$Main$titleStyle = _elm_lang$html$Html_Attributes$style(
 		_1: {
 			ctor: '::',
 			_0: {ctor: '_Tuple2', _0: 'float', _1: 'left'},
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: {ctor: '_Tuple2', _0: 'margin-left', _1: '20px'},
+				_1: {ctor: '[]'}
+			}
 		}
 	});
 var _user$project$Main$tickSnake = function (model) {
@@ -14153,19 +14161,23 @@ var _user$project$Main$view = function (model) {
 										{ctor: '[]'},
 										{
 											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$a,
-												{
-													ctor: '::',
-													_0: A2(_elm_lang$html$Html_Attributes$attribute, 'href', 'https://github.com/mocoso/elm-snake'),
-													_1: {ctor: '[]'}
-												},
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html$text('Source code'),
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
+											_0: _elm_lang$html$Html$text('An experiment in Elm - '),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$a,
+													{
+														ctor: '::',
+														_0: A2(_elm_lang$html$Html_Attributes$attribute, 'href', 'https://github.com/mocoso/elm-snake'),
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('view the source code'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}
 										}),
 									_1: {ctor: '[]'}
 								}
