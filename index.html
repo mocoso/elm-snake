@@ -13680,7 +13680,6 @@ var _user$project$Radian$turnTowards = F3(
 			return _user$project$Radian$normalise(startDirection - rate);
 		}
 	});
-var _user$project$Snake$headRadius = 16;
 var _user$project$Snake$drawFilledCircle = F2(
 	function (color, size) {
 		return A2(
@@ -13694,6 +13693,69 @@ var _user$project$Snake$drawTailSegment = F3(
 			_evancz$elm_graphics$Collage$move,
 			{ctor: '_Tuple2', _0: coord.x, _1: coord.y},
 			A2(_user$project$Snake$drawFilledCircle, color, size));
+	});
+var _user$project$Snake$setDirection = F2(
+	function (mousePosition, snake) {
+		var _p0 = _elm_lang$core$Basics$toPolar(
+			{ctor: '_Tuple2', _0: mousePosition.x - snake.head.x, _1: mousePosition.y - snake.head.y});
+		var directionToMouse = _p0._1;
+		return _elm_lang$core$Native_Utils.update(
+			snake,
+			{
+				direction: A3(_user$project$Radian$turnTowards, snake.direction, directionToMouse, snake.turnRate)
+			});
+	});
+var _user$project$Snake$isHeadCollidingWithTail = function (snake) {
+	return A2(
+		_elm_lang$core$List$any,
+		function (tailSegment) {
+			return A3(_user$project$Position$areWithin, snake.head, tailSegment, 20);
+		},
+		A2(_elm_lang$core$List$drop, 25, snake.tail));
+};
+var _user$project$Snake$canEatFruit = F2(
+	function (snake, fruit) {
+		return A3(_user$project$Position$areWithin, snake.head, fruit, 20);
+	});
+var _user$project$Snake$grow = function (snake) {
+	return _elm_lang$core$Native_Utils.update(
+		snake,
+		{length: snake.length + 5});
+};
+var _user$project$Snake$trimTail = function (snake) {
+	return _elm_lang$core$Native_Utils.update(
+		snake,
+		{
+			tail: A2(_elm_lang$core$List$take, snake.length, snake.tail)
+		});
+};
+var _user$project$Snake$advance = function (snake) {
+	var _p1 = _elm_lang$core$Basics$fromPolar(
+		{ctor: '_Tuple2', _0: snake.speed, _1: snake.direction});
+	var x = _p1._0;
+	var y = _p1._1;
+	return _elm_lang$core$Native_Utils.update(
+		snake,
+		{
+			head: A2(_user$project$Position$Position, snake.head.x + x, snake.head.y + y),
+			tail: A2(
+				_elm_lang$core$Basics_ops['++'],
+				{
+					ctor: '::',
+					_0: snake.head,
+					_1: {ctor: '[]'}
+				},
+				snake.tail)
+		});
+};
+var _user$project$Snake$headRadius = 16;
+var _user$project$Snake$isCollidingWithWall = F2(
+	function (snake, gameSize) {
+		return (_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$Basics$abs(snake.head.x) + _user$project$Snake$headRadius,
+			_elm_lang$core$Basics$toFloat(gameSize.width) / 2) > 0) || (_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$Basics$abs(snake.head.y) + _user$project$Snake$headRadius,
+			_elm_lang$core$Basics$toFloat(gameSize.height) / 2) > 0);
 	});
 var _user$project$Snake$drawEyes = function (snake) {
 	return _evancz$elm_graphics$Collage$group(
@@ -13778,70 +13840,17 @@ var _user$project$Snake$draw = function (snake) {
 				_1: {ctor: '[]'}
 			}));
 };
-var _user$project$Snake$setDirection = F2(
-	function (mousePosition, snake) {
-		var _p0 = _elm_lang$core$Basics$toPolar(
-			{ctor: '_Tuple2', _0: mousePosition.x - snake.head.x, _1: mousePosition.y - snake.head.y});
-		var directionToMouse = _p0._1;
-		return _elm_lang$core$Native_Utils.update(
-			snake,
-			{
-				direction: A3(_user$project$Radian$turnTowards, snake.direction, directionToMouse, snake.turnRate)
-			});
-	});
-var _user$project$Snake$isHeadCollidingWithTail = function (snake) {
-	return A2(
-		_elm_lang$core$List$any,
-		function (tailSegment) {
-			return A3(_user$project$Position$areWithin, snake.head, tailSegment, 20);
-		},
-		A2(_elm_lang$core$List$drop, 25, snake.tail));
-};
-var _user$project$Snake$canEatFruit = F2(
-	function (snake, fruit) {
-		return A3(_user$project$Position$areWithin, snake.head, fruit, 20);
-	});
-var _user$project$Snake$grow = function (snake) {
-	return _elm_lang$core$Native_Utils.update(
-		snake,
-		{length: snake.length + 5});
-};
-var _user$project$Snake$trimTail = function (snake) {
-	return _elm_lang$core$Native_Utils.update(
-		snake,
-		{
-			tail: A2(_elm_lang$core$List$take, snake.length, snake.tail)
-		});
-};
-var _user$project$Snake$advance = function (snake) {
-	var _p1 = _elm_lang$core$Basics$fromPolar(
-		{ctor: '_Tuple2', _0: snake.speed, _1: snake.direction});
-	var x = _p1._0;
-	var y = _p1._1;
-	return _elm_lang$core$Native_Utils.update(
-		snake,
-		{
-			head: A2(_user$project$Position$Position, snake.head.x + x, snake.head.y + y),
-			tail: A2(
-				_elm_lang$core$Basics_ops['++'],
-				{
-					ctor: '::',
-					_0: snake.head,
-					_1: {ctor: '[]'}
-				},
-				snake.tail)
-		});
-};
 var _user$project$Snake$Snake = F6(
 	function (a, b, c, d, e, f) {
 		return {head: a, tail: b, direction: c, speed: d, turnRate: e, length: f};
 	});
+var _user$project$Main$fruitRadius = 10;
 var _user$project$Main$fps = 40;
 var _user$project$Main$snakeSpeed = 150 / _user$project$Main$fps;
 var _user$project$Main$snakeTurnRate = ((2 * _elm_lang$core$Basics$pi) / 300) * _user$project$Main$snakeSpeed;
 var _user$project$Main$snakeInitialLength = _elm_lang$core$Basics$round(300 / _user$project$Main$snakeSpeed);
-var _user$project$Main$gameSize = {width: 800, height: 600};
-var _user$project$Main$myStyle = _elm_lang$html$Html_Attributes$style(
+var _user$project$Main$gameSize = {width: 600, height: 600};
+var _user$project$Main$gameStyle = _elm_lang$html$Html_Attributes$style(
 	{
 		ctor: '::',
 		_0: {
@@ -13865,8 +13874,26 @@ var _user$project$Main$myStyle = _elm_lang$html$Html_Attributes$style(
 			_1: {
 				ctor: '::',
 				_0: {ctor: '_Tuple2', _0: 'background-color', _1: 'black'},
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'float', _1: 'left'},
+					_1: {
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'margin-top', _1: '20px'},
+						_1: {ctor: '[]'}
+					}
+				}
 			}
+		}
+	});
+var _user$project$Main$titleStyle = _elm_lang$html$Html_Attributes$style(
+	{
+		ctor: '::',
+		_0: {ctor: '_Tuple2', _0: 'width', _1: '200px'},
+		_1: {
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'float', _1: 'left'},
+			_1: {ctor: '[]'}
 		}
 	});
 var _user$project$Main$tickSnake = function (model) {
@@ -13901,34 +13928,36 @@ var _user$project$Main$drawFruit = function (position) {
 		A2(
 			_evancz$elm_graphics$Collage$filled,
 			_elm_lang$core$Color$red,
-			_evancz$elm_graphics$Collage$circle(10)));
+			_evancz$elm_graphics$Collage$circle(_user$project$Main$fruitRadius)));
 };
+var _user$project$Main$emptyNode = _elm_lang$html$Html$text('');
 var _user$project$Main$Model = F5(
 	function (a, b, c, d, e) {
 		return {state: a, snake: b, fruit: c, mousePosition: d, score: e};
 	});
-var _user$project$Main$Ended = {ctor: 'Ended'};
+var _user$project$Main$GameOver = {ctor: 'GameOver'};
 var _user$project$Main$collisionChecks = function (_p0) {
 	var _p1 = _p0;
 	var _p3 = _p1._0;
 	var _p2 = _p1._1;
-	return _user$project$Snake$isHeadCollidingWithTail(_p3.snake) ? {
+	return (_user$project$Snake$isHeadCollidingWithTail(_p3.snake) || A2(_user$project$Snake$isCollidingWithWall, _p3.snake, _user$project$Main$gameSize)) ? {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
 			_p3,
-			{state: _user$project$Main$Ended}),
+			{state: _user$project$Main$GameOver}),
 		_1: _p2
 	} : {ctor: '_Tuple2', _0: _p3, _1: _p2};
 };
 var _user$project$Main$Playing = {ctor: 'Playing'};
+var _user$project$Main$MouseClick = {ctor: 'MouseClick'};
 var _user$project$Main$NewFruitPosition = function (a) {
 	return {ctor: 'NewFruitPosition', _0: a};
 };
 var _user$project$Main$newFruitCmd = function () {
 	var halfHeight = _elm_lang$core$Basics$floor(
-		_elm_lang$core$Basics$toFloat(_user$project$Main$gameSize.height) / 2);
+		_elm_lang$core$Basics$toFloat(_user$project$Main$gameSize.height) / 2) - (4 * _user$project$Main$fruitRadius);
 	var halfWidth = _elm_lang$core$Basics$floor(
-		_elm_lang$core$Basics$toFloat(_user$project$Main$gameSize.width) / 2);
+		_elm_lang$core$Basics$toFloat(_user$project$Main$gameSize.width) / 2) - (4 * _user$project$Main$fruitRadius);
 	return _elm_lang$core$Platform_Cmd$batch(
 		{
 			ctor: '::',
@@ -13972,6 +14001,24 @@ var _user$project$Main$fruitEatingChecks = function (_p4) {
 			})
 	} : {ctor: '_Tuple2', _0: _p7, _1: _p6};
 };
+var _user$project$Main$init = {
+	ctor: '_Tuple2',
+	_0: {
+		state: _user$project$Main$Playing,
+		snake: {
+			head: A2(_user$project$Position$Position, 50.0, 50.0),
+			tail: {ctor: '[]'},
+			length: _user$project$Main$snakeInitialLength,
+			direction: 0.0,
+			speed: _user$project$Main$snakeSpeed,
+			turnRate: _user$project$Main$snakeTurnRate
+		},
+		fruit: A2(_user$project$Position$Position, 40.0, 40.0),
+		mousePosition: A2(_user$project$Position$Position, 0.0, 0.0),
+		score: 0
+	},
+	_1: _user$project$Main$newFruitCmd
+};
 var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p8 = msg;
@@ -13998,7 +14045,7 @@ var _user$project$Main$update = F2(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
+			case 'Tick':
 				return _user$project$Main$collisionChecks(
 					_user$project$Main$fruitEatingChecks(
 						{
@@ -14007,26 +14054,10 @@ var _user$project$Main$update = F2(
 							_1: _elm_lang$core$Platform_Cmd$batch(
 								{ctor: '[]'})
 						}));
+			default:
+				return _user$project$Main$init;
 		}
 	});
-var _user$project$Main$init = {
-	ctor: '_Tuple2',
-	_0: {
-		state: _user$project$Main$Playing,
-		snake: {
-			head: A2(_user$project$Position$Position, 50.0, 50.0),
-			tail: {ctor: '[]'},
-			length: _user$project$Main$snakeInitialLength,
-			direction: 0.0,
-			speed: _user$project$Main$snakeSpeed,
-			turnRate: _user$project$Main$snakeTurnRate
-		},
-		fruit: A2(_user$project$Position$Position, 40.0, 40.0),
-		mousePosition: A2(_user$project$Position$Position, 0.0, 0.0),
-		score: 0
-	},
-	_1: _user$project$Main$newFruitCmd
-};
 var _user$project$Main$Tick = function (a) {
 	return {ctor: 'Tick', _0: a};
 };
@@ -14040,8 +14071,7 @@ var _user$project$Main$subscriptions = function (model) {
 				_1: {ctor: '[]'}
 			});
 	} else {
-		return _elm_lang$core$Platform_Sub$batch(
-			{ctor: '[]'});
+		return _elm_lang$core$Platform_Sub$none;
 	}
 };
 var _user$project$Main$MouseMove = function (a) {
@@ -14066,56 +14096,20 @@ var _user$project$Main$view = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$h1,
-				{ctor: '[]'},
+				_elm_lang$html$Html$div,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('Snake'),
+					_0: _user$project$Main$titleStyle,
 					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$p,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'Score: ',
-								_elm_lang$core$Basics$toString(model.score))),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
+				},
+				{
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$div,
+						_elm_lang$html$Html$h1,
+						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _user$project$Main$onMouseMove,
-							_1: {
-								ctor: '::',
-								_0: _user$project$Main$myStyle,
-								_1: {ctor: '[]'}
-							}
-						},
-						{
-							ctor: '::',
-							_0: _evancz$elm_graphics$Element$toHtml(
-								A3(
-									_evancz$elm_graphics$Collage$collage,
-									_user$project$Main$gameSize.width,
-									_user$project$Main$gameSize.height,
-									{
-										ctor: '::',
-										_0: _user$project$Main$drawFruit(model.fruit),
-										_1: {
-											ctor: '::',
-											_0: _user$project$Snake$draw(model.snake),
-											_1: {ctor: '[]'}
-										}
-									})),
+							_0: _elm_lang$html$Html$text('Snake'),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
@@ -14125,23 +14119,96 @@ var _user$project$Main$view = function (model) {
 							{ctor: '[]'},
 							{
 								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$a,
-									{
-										ctor: '::',
-										_0: A2(_elm_lang$html$Html_Attributes$attribute, 'href', 'https://github.com/mocoso/elm-snake'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('Source code'),
-										_1: {ctor: '[]'}
-									}),
+								_0: _elm_lang$html$Html$text(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'Score: ',
+										_elm_lang$core$Basics$toString(model.score))),
 								_1: {ctor: '[]'}
 							}),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$core$Native_Utils.eq(model.state, _user$project$Main$GameOver) ? A2(
+								_elm_lang$html$Html$p,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Game over'),
+									_1: {ctor: '[]'}
+								}) : _user$project$Main$emptyNode,
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$core$Native_Utils.eq(model.state, _user$project$Main$GameOver) ? A2(
+									_elm_lang$html$Html$p,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Click Mouse to Start'),
+										_1: {ctor: '[]'}
+									}) : _user$project$Main$emptyNode,
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$p,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$a,
+												{
+													ctor: '::',
+													_0: A2(_elm_lang$html$Html_Attributes$attribute, 'href', 'https://github.com/mocoso/elm-snake'),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Source code'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
 					}
-				}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _user$project$Main$onMouseMove,
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$MouseClick),
+							_1: {
+								ctor: '::',
+								_0: _user$project$Main$gameStyle,
+								_1: {ctor: '[]'}
+							}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _evancz$elm_graphics$Element$toHtml(
+							A3(
+								_evancz$elm_graphics$Collage$collage,
+								_user$project$Main$gameSize.width,
+								_user$project$Main$gameSize.height,
+								{
+									ctor: '::',
+									_0: _user$project$Main$drawFruit(model.fruit),
+									_1: {
+										ctor: '::',
+										_0: _user$project$Snake$draw(model.snake),
+										_1: {ctor: '[]'}
+									}
+								})),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
 			}
 		});
 };
