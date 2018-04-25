@@ -156,6 +156,7 @@ titleStyle =
   Html.Attributes.style
   [ ("width", "200px")
   , ("float", "left")
+  , ("margin-left", "20px")
   ]
 
 gameStyle =
@@ -165,6 +166,7 @@ gameStyle =
     , ("background-color", "black")
     , ("float", "left")
     , ("margin-top", "20px")
+    , ("margin-left", "20px")
     ]
 
 
